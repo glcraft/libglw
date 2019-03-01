@@ -1,4 +1,5 @@
 #include "GLClass.h"
+#include "GLImpl_Helper"
 namespace gl
 {
 	Object::Object()
@@ -13,10 +14,7 @@ namespace gl
 	{
 
 	}
-	inline GLuint Object::id() const
-	{
-		return m_id;
-	}
+	
 	void Object::swap(Object & obj)
 	{
 		using std::swap;
@@ -374,6 +372,15 @@ namespace gl
 		if (glIsRenderbuffer(myID))
 			glDeleteRenderbuffers(1, &myID);
 		setID(myID);
+	}
+	template <>
+	void RenderBuffer::storage<1>(GLenum internalformat, glm::ivec2 newsize)
+	{
+		instanciate();
+		if (newsize.x != -1 && newsize.y != -1)
+			setSize(newsize);
+		bind();
+		glRenderbufferStorage(GL_RENDERBUFFER, internalformat, m_size.x, m_size.y);
 	}
 
 	VertexArray::VertexArray() : Object()

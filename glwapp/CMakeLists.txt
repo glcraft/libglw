@@ -23,11 +23,12 @@ target_link_libraries (${APP_PROJECT}
     optimized ${LIBGLW_LIBRARY_RELEASE})
 target_link_libraries(${APP_PROJECT} ${SDL2_LIBRARY} ${SDL2_SDLMAIN_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 
-
-target_include_directories(${APP_PROJECT} PUBLIC ${LIBGLW_INCLUDE_DIR})
-target_include_directories(${APP_PROJECT} PUBLIC ${SDL2_INCLUDE_DIR})
-target_include_directories(${APP_PROJECT} PUBLIC ${GLM_INCLUDE_DIRS})
-target_include_directories(${APP_PROJECT} PUBLIC ${GLEW_INCLUDE_DIR})
+target_include_directories(${APP_PROJECT} 
+    PUBLIC ${LIBGLW_INCLUDE_DIR}
+    PUBLIC ${SDL2_INCLUDE_DIR}
+    PUBLIC ${GLM_INCLUDE_DIRS}
+    PUBLIC ${GLEW_INCLUDE_DIR}
+    )
 target_compile_definitions(${APP_PROJECT} PRIVATE GLM_ENABLE_EXPERIMENTAL=1)
 
 

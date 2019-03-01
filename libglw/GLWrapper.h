@@ -36,7 +36,7 @@ namespace gl
 
 	///Accum
 	template <typename ...T>
-	inline void ClearAccum(T... value)
+	inline void ClearAccum(T... rgba)
 	{
 		glm::vec4 v(std::forward<T...>(rgba)...);
 		glClearAccum(v.r, v.g, v.b, v.a);
@@ -76,7 +76,7 @@ namespace gl
 			return clear;
 		}
 		template <typename ...T>
-		T_Clear& Accum(T_Clear& clear, T... value)
+		T_Clear& Accum(T_Clear& clear, T... rgba)
 		{
 			ClearAccum(std::forward<T...>(rgba)...);
 			return clear;
