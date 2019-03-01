@@ -1,3 +1,4 @@
-build/**
-build-Linux/**
-.vscode/**
+.gitignore
+build
+build-Linux
+.vscode
