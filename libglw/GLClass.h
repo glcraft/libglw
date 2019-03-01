@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <type_traits>
 #include <memory>
+#include <string>
 #include <map>
 //#include "GLC_Object.h"
 #define DECL_UPTR(T) using uptr = std::unique_ptr<T>;
@@ -40,7 +41,10 @@ namespace gl
 		 * 
 		 * @return The gl ID returned by glGen*
 		 */
-		GLuint id() const;
+		inline GLuint id() const
+		{
+			return m_id;
+		}
 		/**
 		 * @brief OpenGL binding
 		 * 
@@ -230,10 +234,10 @@ namespace gl
 		}
 		/// Map buffer.
 		/// @see [glMapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glMapBuffer.xhtml)
-		void map(GLenum access)
+		MyStruct* map(GLenum access)
 		{
 			bind();
-			m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, access));
+			return m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, access));
 		}
 		/// Unmap buffer.
 		/// @see [glUnmapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUnmapBuffer.xhtml)
@@ -309,13 +313,13 @@ namespace gl
 		}
 		~ArrayBuffer()
 		{
-			destroy();
+			this->destroy();
 		}
 		template <typename ...Args>
 		void set_attrib(Args... args)
 		{
 			bindVAO();
-			bind();
+			this->bind();
 			set_attrib_priv(args...);
 		}
 		void attachVertexArray(VertexArray::sptr vao)
@@ -332,7 +336,7 @@ namespace gl
 		
 		void draw(GLenum mode) const
 		{
-			draw(mode, 0, m_size);
+			draw(mode, 0, this->m_size);
 		}
 		void draw(GLenum mode, GLint first, GLsizei count) const
 		{
@@ -341,19 +345,19 @@ namespace gl
 				unmap();*/
 
 			bindVAO();
-			bind();
+			this->bind();
 			glDrawArrays(mode, first, count);
 		}
 		template <typename Integer>
 		void draw(const ElementBuffer<Integer>& ebo, GLenum mode) const
 		{
-			draw(ebo, mode, 0, m_size);
+			draw(ebo, mode, 0, this->m_size);
 		}
 		template <typename Integer>
 		void draw(const ElementBuffer<Integer>& ebo, GLenum mode, GLint first, GLsizei count) const
 		{
 			bindVAO();
-			bind();
+			this->bind();
 			ebo.bind();
 			int type = 0;
 			switch (sizeof(Integer))
@@ -412,7 +416,7 @@ namespace gl
 	class UniformRef : public Uniform<Type>
 	{
 	public:
-		UniformRef(std::string name, const Type& instance) : Uniform(name), m_instance(&instance)
+		UniformRef(std::string name, const Type& instance) : Uniform<Type>(name), m_instance(&instance)
 		{
 
 		}
@@ -429,11 +433,11 @@ namespace gl
 	class UniformStatic: public Uniform<Type>
 	{
 	public:
-		UniformStatic(std::string name, const Type& instance) : Uniform(name), m_instance(instance)
+		UniformStatic(std::string name, const Type& instance) : Uniform<Type>(name), m_instance(instance)
 		{
 
 		}
-		UniformStatic(std::string name, Type&& instance) : Uniform(name), m_instance(instance)
+		UniformStatic(std::string name, Type&& instance) : Uniform<Type>(name), m_instance(instance)
 		{
 
 		}
@@ -567,15 +571,6 @@ namespace gl
 			bind();
 			glRenderbufferStorageMultisample(GL_RENDERBUFFER, multisample, internalformat, m_size.x, m_size.y);
 		}
-		template <>
-		void storage<1>(GLenum internalformat, glm::ivec2 newsize)
-		{
-			instanciate();
-			if (newsize.x != -1 && newsize.y != -1)
-				setSize(newsize);
-			bind();
-			glRenderbufferStorage(GL_RENDERBUFFER, internalformat, m_size.x, m_size.y);
-		}
 		void setSize(glm::ivec2 size);
 		glm::ivec2 getSize();
 		void bind() const;
@@ -584,6 +579,8 @@ namespace gl
 		virtual void destroy();
 		glm::ivec2 m_size;
 	};
+	template <>
+	void RenderBuffer::storage<1>(GLenum internalformat, glm::ivec2 newsize);
 	class Framebuffer : public Object
 	{
 	public:
