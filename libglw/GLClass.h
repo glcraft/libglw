@@ -234,10 +234,10 @@ namespace gl
 		}
 		/// Map buffer.
 		/// @see [glMapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glMapBuffer.xhtml)
-		void map(GLenum access)
+		MyStruct* map(GLenum access)
 		{
 			bind();
-			m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, access));
+			return m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, access));
 		}
 		/// Unmap buffer.
 		/// @see [glUnmapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUnmapBuffer.xhtml)
