@@ -276,10 +276,15 @@ namespace gl
 			prog.use();
 			return prog;
 		}
-
 	}
 }
 #define TRY_GLSL try {
 #define CATCH_GLSL }\
-catch (gl::sl::CompileException exc) { std::cerr << "GLSL: Erreur de compilation." << exc.what() << std::endl; }\
-catch (gl::sl::Program::LinkException exc) { std::cerr << "GLSL: Erreur de link." << exc.what() << std::endl; }
+catch (gl::sl::CompileException exc) { \
+std::cerr << "GLSL: Erreur de compilation." << exc.what() << std::endl; \
+std::cerr << "      dans " << __FILE__ << " à la ligne " << __LINE__; \
+}\
+catch (gl::sl::Program::LinkException exc)  { \
+std::cerr << "GLSL: Erreur de link." << exc.what() << std::endl; \
+std::cerr << "      dans " << __FILE__ << " à la ligne " << __LINE__; \
+}
