@@ -83,7 +83,7 @@ namespace gl
 					// Lecture du contenu
 					while (getline(fichierSource, ligneCodeSource))
 						ostrSource << ligneCodeSource << '\n';
-					codeSource.swap(ostrSource.str());
+					codeSource=ostrSource.str();
 				}
 				else
 					codeSource.swap(input);
@@ -181,7 +181,11 @@ namespace gl
 
 			friend void swap(Program& p1, Program& p2);
 			template <typename Type>
-			Program& operator<<(gl::Uniform<Type>& uni)
+			Program& operator<<(gl::Uniform<Type>&& uni)
+			{
+				uni.use(*this);
+				return *this;
+			}
 			template <typename Type>
 			Program& operator<<(const gl::Uniform<Type>& uni)
 			{
@@ -195,6 +199,12 @@ namespace gl
 				return *this;
 			}
 			template <TypeShader type>
+			Program& operator<< (Shader<type>&& shad)
+			{
+				attachShader(shad);
+				return *this;
+			}
+			template <TypeShader type>
 			Program& operator<< (Shader<type>& shad)
 			{
 				attachShader(shad);
@@ -204,10 +214,25 @@ namespace gl
 			Program& operator<< (Program& (*ext)(Program&));
 			const Program& operator<< (const Program& (*ext)(const Program&)) const;
 			template <TypeShader type, typename ...Args>
+			void attachShader(Shader<type>&& shad, Args... shaders)
+			{
+				attachShader(shad);
+				attachShader(shaders...);
+			}
+			template <TypeShader type, typename ...Args>
 			void attachShader(Shader<type>& shad, Args... shaders)
 			{
 				attachShader(shad);
 				attachShader(shaders...);
+			}
+			template <TypeShader type>
+			void attachShader(Shader<type>&& shader)
+			{
+				if (isRef)
+					throw std::runtime_error("Program reference not accessible for attachment");
+				if (!exists())
+					instanciate();
+				glAttachShader(id(), shader.id());
 			}
 			template <TypeShader type>
 			void attachShader(Shader<type>& shader)
