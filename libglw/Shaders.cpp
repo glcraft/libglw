@@ -11,15 +11,15 @@ namespace gl
 	{
 		CompileException::CompileException(TypeShader _type, std::string _name, GLuint _id) : name(_name), type(_type), id(_id)
 		{
-			// Récupération de la taille de l'erreur
+			// Rï¿½cupï¿½ration de la taille de l'erreur
 			GLint tailleErreur(0);
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &tailleErreur);
 
-			// Allocation de mémoire pour l'erreur
+			// Allocation de mï¿½moire pour l'erreur
 			char *erreur = new char[tailleErreur + 1];
 			erreur[tailleErreur] = '\0';
 
-			// Récupération de l'erreur
+			// Rï¿½cupï¿½ration de l'erreur
 			glGetShaderInfoLog(id, tailleErreur, &tailleErreur, erreur);
 
 			// Detection du type
@@ -107,7 +107,10 @@ namespace gl
 		{
 			return ((*ext)(*this));
 		}
-
+		const Program& Program::operator<<(const Program& (*ext)(const Program&)) const
+		{
+			return ((*ext)(*this));
+		}
 		void Program::link()
 		{
 			glGetError();
@@ -184,16 +187,16 @@ namespace gl
 
 		Program::LinkException::LinkException(GLuint _id) : id(_id)
 		{
-			// Récupération de la taille de l'erreur
+			// Rï¿½cupï¿½ration de la taille de l'erreur
 			GLint tailleErreur(0);
 			char *erreur(0);
 
 			glGetProgramiv(id, GL_INFO_LOG_LENGTH, &tailleErreur);
 
-			// Allocation de mémoire pour l'erreur
+			// Allocation de mï¿½moire pour l'erreur
 			erreur = new char[tailleErreur + 1];
 
-			// Copie de l'erreur dans la chaine de caractères
+			// Copie de l'erreur dans la chaine de caractï¿½res
 			glGetProgramInfoLog(id, tailleErreur, &tailleErreur, erreur);
 			erreur[tailleErreur] = '\0';
 
@@ -204,7 +207,7 @@ namespace gl
 			int errorGL = glGetError();
 			if (errorGL>0)
 				ostr << "Erreur OpenGL (" << errorGL << ") : " << gluErrorString(errorGL) << std::endl;
-			// On libère la mémoire puis on retourne false
+			// On libï¿½re la mï¿½moire puis on retourne false
 			delete[] erreur;
 			err = ostr.str();
 		}
