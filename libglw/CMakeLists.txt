@@ -1,6 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
 project (libglw)
-set (CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_DEBUG_POSTFIX "d"
     CACHE STRING "Name suffix for debug builds")
@@ -29,5 +28,9 @@ target_link_libraries(libglw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 target_include_directories(libglw PUBLIC ${GLM_INCLUDE_DIRS})
 
 set_target_properties(libglw PROPERTIES 
+    CXX_STANDARD 11
     DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX}
     OUTPUT_NAME "glw")
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
+endif()
