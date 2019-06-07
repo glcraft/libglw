@@ -165,12 +165,21 @@ namespace gl
 		 */
 		void reserve_relative(GLsizeiptr size, GLenum usage = GL_STREAM_DRAW)
 		{
-			reserve(size + m_size, usage);
+			m_size = m_size + size;
+			auto prevcapa = m_capacity;
+			m_capacity = glm::max<GLsizeiptr>(m_capacity, size);
+			if (prevcapa < m_capacity)
+			{
+				m_capacity = m_size;
+				m_capacity = m_capacity * 4 / 3;
+				bind();
+				glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, usage);
+			}
 		}
 		/**
 		 * @brief Create data
 		 * 
-		 * Note : work like std::vector with a size AND a capacity.
+		 * Note : works like std::vector with a size AND a capacity.
 		 * 
 		 * @see [glBufferData](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBufferData.xhtml)
 		 */
@@ -179,15 +188,26 @@ namespace gl
 			m_size = size;
 			auto prevcapa = m_capacity;
 			m_capacity = glm::max<GLsizeiptr>(m_capacity, size);
-			if (prevcapa != m_capacity)
+			if (prevcapa < m_capacity)
 			{
-				m_capacity = m_size;
-				m_capacity *= 2;
-				//bindVAO();
 				bind();
 				glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, usage);
-
 			}
+		}
+		/**
+		 * @brief Shrink the data to correspond to size instead of capacity
+		 *
+		 * Warning : it doesn't copy old data into new one !
+		 *
+		 * @see [glBufferData](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBufferData.xhtml)
+		 */
+		void shrink_to_fit()
+		{
+			if (m_capacity != m_size)
+				return;
+			m_capacity = m_size;
+			bind();
+			glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, usage);
 		}
 		/// Return the size to use
 		GLuint size() const
