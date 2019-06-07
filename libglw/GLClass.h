@@ -235,6 +235,10 @@ namespace gl
 		{
 			return m_map;
 		}
+		const MyStruct* const data() const
+		{
+			return m_map;
+		}
 		/**
 		 * @brief Get mapped data
 		 * 
@@ -258,6 +262,27 @@ namespace gl
 		{
 			bind();
 			return m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, access));
+		}
+		/// Map buffer in Write Only mode.
+		/// @see [glMapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glMapBuffer.xhtml)
+		MyStruct* map_write()
+		{
+			bind();
+			return m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, GL_WRITE_ONLY));
+		}
+		/// Map buffer in Read Only mode.
+		/// @see [glMapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glMapBuffer.xhtml)
+		const MyStruct* map_read() const 
+		{
+			bind();
+			return m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, GL_READ_ONLY));
+		}
+		/// Map buffer in Read Write mode.
+		/// @see [glMapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glMapBuffer.xhtml)
+		MyStruct* map_readwrite()
+		{
+			bind();
+			return m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, GL_READ_WRITE));
 		}
 		/// Unmap buffer.
 		/// @see [glUnmapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUnmapBuffer.xhtml)
@@ -295,7 +320,7 @@ namespace gl
 			return target;
 		}
 		GLsizeiptr m_size, m_capacity;
-		MyStruct* m_map;
+		mutable MyStruct* m_map;
 	};
 	template <typename Integer>
 	class ElementBuffer : public Buffer<GL_ELEMENT_ARRAY_BUFFER, Integer>
