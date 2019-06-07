@@ -3,7 +3,7 @@ set(LIB_SOLUTION glw)
 set(LIB_PROJECT libglw)
 set(APP_PROJECT glwapp)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
 project(${LIB_SOLUTION})
 add_subdirectory("${PROJECT_SOURCE_DIR}/libglw")
