@@ -3,6 +3,8 @@ project (libglw)
 
 set(CMAKE_DEBUG_POSTFIX "d"
     CACHE STRING "Name suffix for debug builds")
+set(LIBGLW_WITH_STD_FILESYSTEM ON
+    CACHE STRING "std::filesystem integration (for loading shaders)")
 
 if (WIN32)
     set(LIB_EXT "lib")
@@ -23,6 +25,7 @@ file(GLOB libglw_SRC
 )
 # Library
 add_library(libglw ${libglw_SRC})
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.in.h" "${CMAKE_CURRENT_SOURCE_DIR}/include/libglw/config.h")
 
 target_link_libraries(libglw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 target_include_directories(libglw 
@@ -31,7 +34,12 @@ target_include_directories(libglw
 set_target_properties(libglw PROPERTIES 
     CXX_STANDARD 11
     DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX}
-    OUTPUT_NAME "glw")
+    OUTPUT_NAME "libglw")
+if (LIBGLW_WITH_STD_FILESYSTEM)
+    set_target_properties(libglw PROPERTIES 
+        CXX_STANDARD 17
+    )
+endif()
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus")
 endif()

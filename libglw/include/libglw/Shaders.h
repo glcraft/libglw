@@ -13,6 +13,7 @@
 #include <fstream>
 //#include "GLC_Object.h"
 #include "GLClass.h"
+#include "config.h"
 
 namespace gl
 {
@@ -52,6 +53,12 @@ namespace gl
 			{
 				set(filename, isFile);
 			}
+#if LIBGLW_WITH_STD_FILESYSTEM
+			Shader(const std::filesystem::path& filename) : Shader()
+			{
+				set(filename);
+			}
+#endif
 			Shader(Shader&& shad) : Object(std::move(shad))
 			{
 				std::swap(type, shad.type);
@@ -60,6 +67,12 @@ namespace gl
 			{
 				
 			}
+#if LIBGLW_WITH_STD_FILESYSTEM
+			void set(const std::filesystem::path& filename)
+			{
+				set(filename.string(), true);
+			}
+#endif
 			void set(std::string input, bool isFile = true)
 			{
 				instanciate();
