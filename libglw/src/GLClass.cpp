@@ -1,5 +1,5 @@
-#include "GLClass.h"
-#include "GLImpl_Helper"
+#include <libglw/GLClass.h>
+#include <libglw/GLImpl_Helper>
 namespace gl
 {
 	Object::Object()

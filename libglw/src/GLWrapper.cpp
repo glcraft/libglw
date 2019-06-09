@@ -1,4 +1,4 @@
-#include "GLWrapper.h"
+#include <libglw/GLWrapper.h>
 namespace gl
 {
 	impl::T_Clear Clear;

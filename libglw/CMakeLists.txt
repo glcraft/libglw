@@ -18,15 +18,16 @@ find_package(GLEW REQUIRED)
 find_package(GLM REQUIRED)
 
 file(GLOB libglw_SRC
-    "*.h"
-    "*.cpp"
+    "include/libglw/*.h"
+    "src/*.cpp"
 )
 # Library
 add_library(libglw ${libglw_SRC})
 
 target_link_libraries(libglw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
-target_include_directories(libglw PUBLIC ${GLM_INCLUDE_DIRS})
-
+target_include_directories(libglw 
+    PUBLIC ${GLM_INCLUDE_DIRS}
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
 set_target_properties(libglw PROPERTIES 
     CXX_STANDARD 11
     DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX}
