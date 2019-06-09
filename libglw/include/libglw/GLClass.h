@@ -207,7 +207,7 @@ namespace gl
 				return;
 			m_capacity = m_size;
 			bind();
-			glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, usage);
+			glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, GL_STREAM_DRAW);
 		}
 		/// Return the size to use
 		GLuint size() const
