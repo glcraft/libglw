@@ -286,7 +286,7 @@ namespace gl
 		}
 		/// Unmap buffer.
 		/// @see [glUnmapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUnmapBuffer.xhtml)
-		void unmap()
+		void unmap() const
 		{
 			if (m_map)
 			{
