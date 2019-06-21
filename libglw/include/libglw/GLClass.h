@@ -590,6 +590,7 @@ namespace gl
 		void setSampler(Sampler::sptr);
 		Sampler::sptr getSampler() const;
 
+		void init_null(GLenum format=GL_RGBA, GLenum type=GL_UNSIGNED_BYTE);
 		void load(GLenum format, GLenum type, const GLvoid * data, glm::vec2 newsize = glm::vec2(-1));
 		void generateMipmap();
 	protected:
