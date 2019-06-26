@@ -209,6 +209,7 @@ namespace gl
 	}
 	void Texture::init_null(GLenum format, GLenum type)
 	{
+		bind();
 		glTexImage2D(m_target, 0, m_format, m_size.x, m_size.y, 0, format, type, nullptr);
 	}
 	void Texture::load(GLenum format, GLenum type, const GLvoid * data, glm::vec2 newsize)
