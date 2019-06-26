@@ -52,6 +52,13 @@ namespace gl
 		 */
 		virtual void bind() const = 0;
 		void swap(Object& obj);
+		/**
+		 * @brief OpenGL ID generator
+		 * 
+		 * Used to create the new OpenGL object by using glGen*. Could also init some default parameters.
+		 * Have to be declared in inherited class
+		 */
+		virtual void instanciate() = 0;
 	protected:
 		/**
 		 * @brief OpenGL ID setter
@@ -63,13 +70,7 @@ namespace gl
 		 * @see instanciate()
 		 */
 		void setID(GLuint id);
-		/**
-		 * @brief OpenGL ID generator
-		 * 
-		 * Used to create the new OpenGL object by using glGen*. Could also init some default parameters.
-		 * Have to be declared in inherited class
-		 */
-		virtual void instanciate() = 0;
+		
 		/**
 		 * @brief OpenGL ID destroyer
 		 * 
@@ -132,10 +133,11 @@ namespace gl
 		/// @see [glGetVertexAttribiv](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetVertexAttribiv.xhtml)(index, GL_VERTEX_ATTRIB_ARRAY_ENABLED, myvar)
 		bool isEnabled(int ) const;
 		void bind() const;
-	protected:
 		/// @copydoc Object::instanciate
 		/// @see [glGenVertexArrays](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGenVertexArrays.xhtml)
 		virtual void instanciate();
+	protected:
+		
 		/// @copydoc Object::destroy
 		/// @see [glDeleteVertexArrays](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDeleteVertexArrays.xhtml)
 		virtual void destroy();
@@ -295,7 +297,6 @@ namespace gl
 				m_map = nullptr;
 			}
 		}
-	protected:
 		/// @copydoc Object::instanciate
 		/// @see [glGenBuffers](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGenBuffers.xhtml)
 		virtual void instanciate()
@@ -305,6 +306,8 @@ namespace gl
 				glGenBuffers(1, &myID);
 			setID(myID);
 		}
+	protected:
+		
 		/// @copydoc Object::destroy
 		/// @see [glDeleteBuffers](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDeleteBuffers.xhtml)
 		virtual void destroy()
@@ -532,6 +535,7 @@ namespace gl
 			MirroredClampToEdge = GL_MIRROR_CLAMP_TO_EDGE,
 		};
 		Sampler();
+		virtual void instanciate();
 		~Sampler();
 
 		void bind() const;
@@ -557,7 +561,7 @@ namespace gl
 		void setMaxLOD(float max_lod);
 		void setLODBias(float lod_bias);
 	protected:
-		virtual void instanciate();
+		
 		virtual void destroy();
 	};
 
@@ -569,6 +573,7 @@ namespace gl
 		Texture();
 		Texture(GLenum target, int w, int h);
 		Texture(GLenum target, GLuint id);
+		virtual void instanciate();
 		~Texture();
 
 		void bind() const;
@@ -594,7 +599,7 @@ namespace gl
 		void load(GLenum format, GLenum type, const GLvoid * data, glm::vec2 newsize = glm::vec2(-1));
 		void generateMipmap();
 	protected:
-		virtual void instanciate();
+		
 		virtual void destroy();
 	private:
 		glm::ivec2 m_size;
@@ -608,6 +613,7 @@ namespace gl
 	public:
 		DECL_PTR(RenderBuffer)
 		RenderBuffer();
+		virtual void instanciate();
 		template <int multisample>
 		void storage(GLenum internalformat, glm::ivec2 newsize = glm::ivec2(-1))
 		{
@@ -620,8 +626,8 @@ namespace gl
 		void setSize(glm::ivec2 size);
 		glm::ivec2 getSize();
 		void bind() const;
+		
 	protected:
-		virtual void instanciate();
 		virtual void destroy();
 		glm::ivec2 m_size;
 	};
@@ -659,6 +665,7 @@ namespace gl
 			AttachDepthStencil = GL_DEPTH_STENCIL_ATTACHMENT
 		};
 		Framebuffer();
+		virtual void instanciate();
 		~Framebuffer();
 
 		static void BindScreen();
@@ -675,9 +682,8 @@ namespace gl
 		GLenum getStatus();
 
 		void clear(GLuint flags = ClearColor);
-
+		
 	protected:
-		virtual void instanciate();
 		virtual void destroy();
 
 		glm::ivec2 m_size;
