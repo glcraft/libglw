@@ -2,6 +2,7 @@
 #include <libglw/GLImpl_Helper>
 namespace gl
 {
+	bool Object::m_auto_inst=false;
 	Object::Object()
 	{
 		m_id = 0;
@@ -26,7 +27,8 @@ namespace gl
 	}
 	Sampler::Sampler() : Object()
 	{
-		instanciate();
+		if (Object::GetAutoInstanciate())
+			instanciate();
 	}
 	Sampler::~Sampler()
 	{
@@ -134,7 +136,8 @@ namespace gl
 	}
 	Texture::Texture() : Object(), m_target(GL_TEXTURE_2D)
 	{
-		instanciate();
+		if (Object::GetAutoInstanciate())
+			instanciate();
 	}
 	Texture::Texture(GLenum target, int w, int h) : Object(), m_target(target)
 	{
@@ -215,7 +218,8 @@ namespace gl
 	void Texture::load(GLenum format, GLenum type, const GLvoid * data, glm::vec2 newsize)
 	{
 		if (!glIsTexture(id()))
-			instanciate();
+			if (Object::GetAutoInstanciate())
+				instanciate();
 		if (newsize.x != -1 && newsize.y != -1)
 			setSize(newsize);
 		bind();
@@ -248,7 +252,8 @@ namespace gl
 	
 	Framebuffer::Framebuffer() : Object()
 	{
-		instanciate();
+		if (Object::GetAutoInstanciate())
+			instanciate();
 	}
 
 	Framebuffer::~Framebuffer()
@@ -344,7 +349,8 @@ namespace gl
 
 	RenderBuffer::RenderBuffer() : Object()
 	{
-		instanciate();
+		if (Object::GetAutoInstanciate())
+			instanciate();
 	}
 
 	void RenderBuffer::setSize(glm::ivec2 size)
@@ -380,7 +386,8 @@ namespace gl
 	template <>
 	void RenderBuffer::storage<1>(GLenum internalformat, glm::ivec2 newsize)
 	{
-		instanciate();
+		if (Object::GetAutoInstanciate())
+			instanciate();
 		if (newsize.x != -1 && newsize.y != -1)
 			setSize(newsize);
 		bind();
@@ -389,7 +396,8 @@ namespace gl
 
 	VertexArray::VertexArray() : Object()
 	{
-		instanciate();
+		if (Object::GetAutoInstanciate())
+			instanciate();
 	}
 
 	VertexArray::VertexArray(GLuint id) : Object(id)

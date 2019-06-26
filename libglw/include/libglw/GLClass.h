@@ -30,6 +30,7 @@ namespace gl
 	class Object
 	{
 	public:
+		
 		DECL_PTR(Object)
 		Object();
 		Object(GLuint id);
@@ -59,6 +60,19 @@ namespace gl
 		 * Have to be declared in inherited class
 		 */
 		virtual void instanciate() = 0;
+		/**
+		 * @brief Enable auto instanciation
+		 * 
+		 * This enable the auto instanciater option. When enabled, every object created will call instanciate by themselves.
+		 * @see GetAutoInstanciate
+		 */
+		static void SetAutoInstanciate(bool enabled);
+		/**
+		 * @brief Check if auto instanciation is enabled
+		 * 
+		 * @see GetAutoInstanciate
+		 */
+		static bool GetAutoInstanciate();
 	protected:
 		/**
 		 * @brief OpenGL ID setter
@@ -79,6 +93,7 @@ namespace gl
 		 */
 		virtual void destroy() = 0;
 	private:
+		static bool m_auto_inst=false;
 		/// OpenGL ID.
 		GLuint m_id = 0;
 	};
