@@ -66,13 +66,14 @@ namespace gl
 		 * This enable the auto instanciater option. When enabled, every object created will call instanciate by themselves.
 		 * @see GetAutoInstanciate
 		 */
-		static void SetAutoInstanciate(bool enabled);
+		static void SetAutoInstanciate(bool enabled) { m_auto_inst = enabled; }
 		/**
 		 * @brief Check if auto instanciation is enabled
 		 * 
 		 * @see GetAutoInstanciate
 		 */
-		static bool GetAutoInstanciate();
+		static bool GetAutoInstanciate() { return m_auto_inst; }
+
 	protected:
 		/**
 		 * @brief OpenGL ID setter
@@ -93,7 +94,7 @@ namespace gl
 		 */
 		virtual void destroy() = 0;
 	private:
-		static bool m_auto_inst=false;
+		static bool m_auto_inst;
 		/// OpenGL ID.
 		GLuint m_id = 0;
 	};
