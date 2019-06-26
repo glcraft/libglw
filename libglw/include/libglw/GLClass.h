@@ -655,7 +655,8 @@ namespace gl
 			AttachColor6 = GL_COLOR_ATTACHMENT6,
 			// And so on...
 			AttachDepth = GL_DEPTH_ATTACHMENT,
-			AttachStencil = GL_STENCIL_ATTACHMENT
+			AttachStencil = GL_STENCIL_ATTACHMENT,
+			AttachDepthStencil = GL_DEPTH_STENCIL_ATTACHMENT
 		};
 		Framebuffer();
 		~Framebuffer();
