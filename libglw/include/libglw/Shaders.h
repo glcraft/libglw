@@ -265,7 +265,7 @@ namespace gl
 			void instantiate();
 			void destroy();
 		private:
-			bool isRef;
+			bool isRef=false;
 		};
 		inline gl::sl::Program& link(gl::sl::Program& prog)
 		{

@@ -338,8 +338,8 @@ namespace gl
 		{
 			return target;
 		}
-		GLsizeiptr m_size, m_capacity;
-		mutable MyStruct* m_map;
+		GLsizeiptr m_size=0, m_capacity=0;
+		mutable MyStruct* m_map=nullptr;
 	};
 	template <typename Integer>
 	class ElementBuffer : public Buffer<GL_ELEMENT_ARRAY_BUFFER, Integer>
