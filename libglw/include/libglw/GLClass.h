@@ -172,7 +172,8 @@ namespace gl
 	public:
 		Buffer() : m_size(0), m_capacity(0), m_map(nullptr)
 		{
-			instanciate();
+			if (Object::GetAutoInstantiate())
+				instantiate();
 		}
 		/**
 		 * @brief Append or reduce data.
