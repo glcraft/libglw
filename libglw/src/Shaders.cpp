@@ -165,7 +165,7 @@ namespace gl
 			Object::swap(prog);
 			swap(prog.isRef, isRef);
 		}
-		void Program::instanciate()
+		void Program::instantiate()
 		{
 			GLuint myid = id();
 			if (!exists())
