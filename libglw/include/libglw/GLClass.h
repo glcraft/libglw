@@ -59,30 +59,30 @@ namespace gl
 		 * Used to create the new OpenGL object by using glGen*. Could also init some default parameters.
 		 * Have to be declared in inherited class
 		 */
-		virtual void instanciate() = 0;
+		virtual void instantiate() = 0;
 		/**
 		 * @brief Enable auto instanciation
 		 * 
-		 * This enable the auto instanciater option. When enabled, every object created will call instanciate by themselves.
-		 * @see GetAutoInstanciate
+		 * This enable the auto instantiater option. When enabled, every object created will call instantiate by themselves.
+		 * @see GetAutoInstantiate
 		 */
-		static void SetAutoInstanciate(bool enabled) { m_auto_inst = enabled; }
+		static void SetAutoInstantiate(bool enabled) { m_auto_inst = enabled; }
 		/**
 		 * @brief Check if auto instanciation is enabled
 		 * 
-		 * @see GetAutoInstanciate
+		 * @see SetAutoInstantiate
 		 */
-		static bool GetAutoInstanciate() { return m_auto_inst; }
+		static bool GetAutoInstantiate() { return m_auto_inst; }
 
 	protected:
 		/**
 		 * @brief OpenGL ID setter
 		 * 
 		 * Every classes inherited from Object have to write the new ID by this method.
-		 * Mostly called by instanciate
+		 * Mostly called by instantiate
 		 * 
 		 * @param id OpenGL ID got from glGen*
-		 * @see instanciate()
+		 * @see instantiate()
 		 */
 		void setID(GLuint id);
 		
@@ -149,9 +149,9 @@ namespace gl
 		/// @see [glGetVertexAttribiv](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetVertexAttribiv.xhtml)(index, GL_VERTEX_ATTRIB_ARRAY_ENABLED, myvar)
 		bool isEnabled(int ) const;
 		void bind() const;
-		/// @copydoc Object::instanciate
+		/// @copydoc Object::instantiate
 		/// @see [glGenVertexArrays](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGenVertexArrays.xhtml)
-		virtual void instanciate();
+		virtual void instantiate();
 	protected:
 		
 		/// @copydoc Object::destroy
@@ -313,9 +313,9 @@ namespace gl
 				m_map = nullptr;
 			}
 		}
-		/// @copydoc Object::instanciate
+		/// @copydoc Object::instantiate
 		/// @see [glGenBuffers](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGenBuffers.xhtml)
-		virtual void instanciate()
+		virtual void instantiate()
 		{
 			GLuint myID = id();
 			if (!glIsBuffer(myID))
@@ -551,7 +551,7 @@ namespace gl
 			MirroredClampToEdge = GL_MIRROR_CLAMP_TO_EDGE,
 		};
 		Sampler();
-		virtual void instanciate();
+		virtual void instantiate();
 		~Sampler();
 
 		void bind() const;
@@ -589,7 +589,7 @@ namespace gl
 		Texture();
 		Texture(GLenum target, int w, int h);
 		Texture(GLenum target, GLuint id);
-		virtual void instanciate();
+		virtual void instantiate();
 		~Texture();
 
 		void bind() const;
@@ -629,11 +629,11 @@ namespace gl
 	public:
 		DECL_PTR(RenderBuffer)
 		RenderBuffer();
-		virtual void instanciate();
+		virtual void instantiate();
 		template <int multisample>
 		void storage(GLenum internalformat, glm::ivec2 newsize = glm::ivec2(-1))
 		{
-			instanciate();
+			instantiate();
 			if (newsize.x != -1 && newsize.y != -1)
 				setSize(newsize);
 			bind();
@@ -681,7 +681,7 @@ namespace gl
 			AttachDepthStencil = GL_DEPTH_STENCIL_ATTACHMENT
 		};
 		Framebuffer();
-		virtual void instanciate();
+		virtual void instantiate();
 		~Framebuffer();
 
 		static void BindScreen();

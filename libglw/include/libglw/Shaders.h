@@ -75,7 +75,7 @@ namespace gl
 #endif
 			void set(std::string input, bool isFile = true)
 			{
-				instanciate();
+				instantiate();
 				if (id() == 0)
 					throw std::runtime_error("gl::sl::Shader : type inconnu");
 
@@ -123,7 +123,7 @@ namespace gl
 				// There's no bind for Shader, discard...
 			}
 		protected:
-			virtual void instanciate()
+			virtual void instantiate()
 			{
 				GLuint myid = id();
 				if (!glIsShader(myid))
@@ -237,7 +237,7 @@ namespace gl
 				if (isRef)
 					throw std::runtime_error("Program reference not accessible for attachment");
 				if (!exists())
-					instanciate();
+					instantiate();
 				glAttachShader(id(), shader.id());
 			}
 			template <TypeShader type>
@@ -246,7 +246,7 @@ namespace gl
 				if (isRef)
 					throw std::runtime_error("Program reference not accessible for attachment");
 				if (!exists())
-					instanciate();
+					instantiate();
 				glAttachShader(id(), shader.id());
 			}
 			void link();
@@ -262,7 +262,7 @@ namespace gl
 			void bind() const;
 			void swap(Program& prog);
 		protected:
-			void instanciate();
+			void instantiate();
 			void destroy();
 		private:
 			bool isRef;
