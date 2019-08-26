@@ -8,8 +8,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Mo
 set(LIBGLW_LIBRARY_ONLY OFF CACHE BOOL "Build only libglw without the application")
 
 project(${LIB_SOLUTION})
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libglw")
+
+add_subdirectory(libglw)
 if (NOT LIBGLW_LIBRARY_ONLY)
-    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/glwapp")
+    add_subdirectory(glwapp)
     add_dependencies(glwapp libglw)
 endif()
