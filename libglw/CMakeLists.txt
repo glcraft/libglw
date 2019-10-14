@@ -30,6 +30,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.in.h" "${CMAKE_CURRENT_
 target_link_libraries(libglw ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 target_include_directories(libglw 
     PUBLIC ${GLM_INCLUDE_DIRS}
+    PUBLIC ${GLEW_INCLUDE_DIR}
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
 set_target_properties(libglw PROPERTIES 
     CXX_STANDARD 11
