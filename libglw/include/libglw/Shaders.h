@@ -13,6 +13,7 @@
 #include <fstream>
 //#include "GLC_Object.h"
 #include "GLClass.h"
+// #include "config.h"
 
 namespace gl
 {
@@ -52,6 +53,12 @@ namespace gl
 			{
 				set(filename, isFile);
 			}
+#if LIBGLW_WITH_STD_FILESYSTEM
+			Shader(const std::filesystem::path& filename) : Shader()
+			{
+				set(filename);
+			}
+#endif
 			Shader(Shader&& shad) : Object(std::move(shad))
 			{
 				std::swap(type, shad.type);
@@ -60,9 +67,15 @@ namespace gl
 			{
 				
 			}
+#if LIBGLW_WITH_STD_FILESYSTEM
+			void set(const std::filesystem::path& filename)
+			{
+				set(filename.string(), true);
+			}
+#endif
 			void set(std::string input, bool isFile = true)
 			{
-				instanciate();
+				instantiate();
 				if (id() == 0)
 					throw std::runtime_error("gl::sl::Shader : type inconnu");
 
@@ -110,7 +123,7 @@ namespace gl
 				// There's no bind for Shader, discard...
 			}
 		protected:
-			virtual void instanciate()
+			virtual void instantiate()
 			{
 				GLuint myid = id();
 				if (!glIsShader(myid))
@@ -187,13 +200,7 @@ namespace gl
 				return *this;
 			}
 			template <typename Type>
-			Program& operator<<(const gl::Uniform<Type>& uni)
-			{
-				uni.use(*this);
-				return *this;
-			}
-			template <typename Type>
-			const Program& operator<<(const gl::Uniform<Type>& uni) const
+			Program& operator<<(gl::Uniform<Type>& uni)
 			{
 				uni.use(*this);
 				return *this;
@@ -212,7 +219,6 @@ namespace gl
 			}
 			Program& operator<< (Collection& col);
 			Program& operator<< (Program& (*ext)(Program&));
-			const Program& operator<< (const Program& (*ext)(const Program&)) const;
 			template <TypeShader type, typename ...Args>
 			void attachShader(Shader<type>&& shad, Args... shaders)
 			{
@@ -231,7 +237,7 @@ namespace gl
 				if (isRef)
 					throw std::runtime_error("Program reference not accessible for attachment");
 				if (!exists())
-					instanciate();
+					instantiate();
 				glAttachShader(id(), shader.id());
 			}
 			template <TypeShader type>
@@ -240,7 +246,7 @@ namespace gl
 				if (isRef)
 					throw std::runtime_error("Program reference not accessible for attachment");
 				if (!exists())
-					instanciate();
+					instantiate();
 				glAttachShader(id(), shader.id());
 			}
 			void link();
@@ -256,19 +262,14 @@ namespace gl
 			void bind() const;
 			void swap(Program& prog);
 		protected:
-			void instanciate();
+			void instantiate();
 			void destroy();
 		private:
-			bool isRef;
+			bool isRef=false;
 		};
 		inline gl::sl::Program& link(gl::sl::Program& prog)
 		{
 			prog.link();
-			return prog;
-		}
-		inline const gl::sl::Program& use(const gl::sl::Program& prog)
-		{
-			prog.use();
 			return prog;
 		}
 		inline gl::sl::Program& use(gl::sl::Program& prog)
@@ -276,15 +277,10 @@ namespace gl
 			prog.use();
 			return prog;
 		}
+
 	}
 }
 #define TRY_GLSL try {
 #define CATCH_GLSL }\
-catch (gl::sl::CompileException exc) { \
-std::cerr << "GLSL: Erreur de compilation." << exc.what() << std::endl; \
-std::cerr << "      dans " << __FILE__ << " à la ligne " << __LINE__; \
-}\
-catch (gl::sl::Program::LinkException exc)  { \
-std::cerr << "GLSL: Erreur de link." << exc.what() << std::endl; \
-std::cerr << "      dans " << __FILE__ << " à la ligne " << __LINE__; \
-}
+catch (gl::sl::CompileException exc) { std::cerr << "GLSL: Erreur de compilation." << exc.what() << std::endl; }\
+catch (gl::sl::Program::LinkException exc) { std::cerr << "GLSL: Erreur de link." << exc.what() << std::endl; }

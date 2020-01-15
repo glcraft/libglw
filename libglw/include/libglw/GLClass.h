@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <type_traits>
 #include <memory>
+#include <string>
 #include <map>
 //#include "GLC_Object.h"
 #define DECL_UPTR(T) using uptr = std::unique_ptr<T>;
@@ -29,6 +30,7 @@ namespace gl
 	class Object
 	{
 	public:
+		
 		DECL_PTR(Object)
 		Object();
 		Object(GLuint id);
@@ -40,7 +42,10 @@ namespace gl
 		 * 
 		 * @return The gl ID returned by glGen*
 		 */
-		GLuint id() const;
+		inline GLuint id() const
+		{
+			return m_id;
+		}
 		/**
 		 * @brief OpenGL binding
 		 * 
@@ -48,24 +53,39 @@ namespace gl
 		 */
 		virtual void bind() const = 0;
 		void swap(Object& obj);
-	protected:
-		/**
-		 * @brief OpenGL ID setter
-		 * 
-		 * Every classes inherited from Object have to write the new ID by this method.
-		 * Mostly called by instanciate
-		 * 
-		 * @param id OpenGL ID got from glGen*
-		 * @see instanciate()
-		 */
-		void setID(GLuint id);
 		/**
 		 * @brief OpenGL ID generator
 		 * 
 		 * Used to create the new OpenGL object by using glGen*. Could also init some default parameters.
 		 * Have to be declared in inherited class
 		 */
-		virtual void instanciate() = 0;
+		virtual void instantiate() = 0;
+		/**
+		 * @brief Enable auto instanciation
+		 * 
+		 * This enable the auto instantiater option. When enabled, every object created will call instantiate by themselves.
+		 * @see GetAutoInstantiate
+		 */
+		static void SetAutoInstantiate(bool enabled) { m_auto_inst = enabled; }
+		/**
+		 * @brief Check if auto instanciation is enabled
+		 * 
+		 * @see SetAutoInstantiate
+		 */
+		static bool GetAutoInstantiate() { return m_auto_inst; }
+
+	protected:
+		/**
+		 * @brief OpenGL ID setter
+		 * 
+		 * Every classes inherited from Object have to write the new ID by this method.
+		 * Mostly called by instantiate
+		 * 
+		 * @param id OpenGL ID got from glGen*
+		 * @see instantiate()
+		 */
+		void setID(GLuint id);
+		
 		/**
 		 * @brief OpenGL ID destroyer
 		 * 
@@ -74,6 +94,7 @@ namespace gl
 		 */
 		virtual void destroy() = 0;
 	private:
+		static bool m_auto_inst;
 		/// OpenGL ID.
 		GLuint m_id = 0;
 	};
@@ -128,10 +149,11 @@ namespace gl
 		/// @see [glGetVertexAttribiv](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGetVertexAttribiv.xhtml)(index, GL_VERTEX_ATTRIB_ARRAY_ENABLED, myvar)
 		bool isEnabled(int ) const;
 		void bind() const;
-	protected:
-		/// @copydoc Object::instanciate
+		/// @copydoc Object::instantiate
 		/// @see [glGenVertexArrays](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGenVertexArrays.xhtml)
-		virtual void instanciate();
+		virtual void instantiate();
+	protected:
+		
 		/// @copydoc Object::destroy
 		/// @see [glDeleteVertexArrays](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDeleteVertexArrays.xhtml)
 		virtual void destroy();
@@ -150,7 +172,8 @@ namespace gl
 	public:
 		Buffer() : m_size(0), m_capacity(0), m_map(nullptr)
 		{
-			instanciate();
+			if (Object::GetAutoInstantiate())
+				instantiate();
 		}
 		/**
 		 * @brief Append or reduce data.
@@ -161,12 +184,21 @@ namespace gl
 		 */
 		void reserve_relative(GLsizeiptr size, GLenum usage = GL_STREAM_DRAW)
 		{
-			reserve(size + m_size, usage);
+			m_size = m_size + size;
+			auto prevcapa = m_capacity;
+			m_capacity = glm::max<GLsizeiptr>(m_capacity, size);
+			if (prevcapa < m_capacity)
+			{
+				m_capacity = m_size;
+				m_capacity = m_capacity * 4 / 3;
+				bind();
+				glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, usage);
+			}
 		}
 		/**
 		 * @brief Create data
 		 * 
-		 * Note : work like std::vector with a size AND a capacity.
+		 * Note : works like std::vector with a size AND a capacity.
 		 * 
 		 * @see [glBufferData](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBufferData.xhtml)
 		 */
@@ -175,15 +207,26 @@ namespace gl
 			m_size = size;
 			auto prevcapa = m_capacity;
 			m_capacity = glm::max<GLsizeiptr>(m_capacity, size);
-			if (prevcapa != m_capacity)
+			if (prevcapa < m_capacity)
 			{
-				m_capacity = m_size;
-				m_capacity *= 2;
-				//bindVAO();
 				bind();
 				glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, usage);
-
 			}
+		}
+		/**
+		 * @brief Shrink the data to correspond to size instead of capacity
+		 *
+		 * Warning : it doesn't copy old data into new one !
+		 *
+		 * @see [glBufferData](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBufferData.xhtml)
+		 */
+		void shrink_to_fit()
+		{
+			if (m_capacity != m_size)
+				return;
+			m_capacity = m_size;
+			bind();
+			glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, GL_STREAM_DRAW);
 		}
 		/// Return the size to use
 		GLuint size() const
@@ -211,6 +254,10 @@ namespace gl
 		{
 			return m_map;
 		}
+		const MyStruct* const data() const
+		{
+			return m_map;
+		}
 		/**
 		 * @brief Get mapped data
 		 * 
@@ -235,9 +282,30 @@ namespace gl
 			bind();
 			return m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, access));
 		}
+		/// Map buffer in Write Only mode.
+		/// @see [glMapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glMapBuffer.xhtml)
+		MyStruct* map_write()
+		{
+			bind();
+			return m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, GL_WRITE_ONLY));
+		}
+		/// Map buffer in Read Only mode.
+		/// @see [glMapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glMapBuffer.xhtml)
+		const MyStruct* map_read() const 
+		{
+			bind();
+			return m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, GL_READ_ONLY));
+		}
+		/// Map buffer in Read Write mode.
+		/// @see [glMapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glMapBuffer.xhtml)
+		MyStruct* map_readwrite()
+		{
+			bind();
+			return m_map = reinterpret_cast<MyStruct*>(glMapBuffer(target, GL_READ_WRITE));
+		}
 		/// Unmap buffer.
 		/// @see [glUnmapBuffer](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glUnmapBuffer.xhtml)
-		void unmap()
+		void unmap() const
 		{
 			if (m_map)
 			{
@@ -246,16 +314,17 @@ namespace gl
 				m_map = nullptr;
 			}
 		}
-	protected:
-		/// @copydoc Object::instanciate
+		/// @copydoc Object::instantiate
 		/// @see [glGenBuffers](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glGenBuffers.xhtml)
-		virtual void instanciate()
+		virtual void instantiate()
 		{
 			GLuint myID = id();
 			if (!glIsBuffer(myID))
 				glGenBuffers(1, &myID);
 			setID(myID);
 		}
+	protected:
+		
 		/// @copydoc Object::destroy
 		/// @see [glDeleteBuffers](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDeleteBuffers.xhtml)
 		virtual void destroy()
@@ -270,8 +339,8 @@ namespace gl
 		{
 			return target;
 		}
-		GLsizeiptr m_size, m_capacity;
-		MyStruct* m_map;
+		GLsizeiptr m_size=0, m_capacity=0;
+		mutable MyStruct* m_map=nullptr;
 	};
 	template <typename Integer>
 	class ElementBuffer : public Buffer<GL_ELEMENT_ARRAY_BUFFER, Integer>
@@ -309,13 +378,13 @@ namespace gl
 		}
 		~ArrayBuffer()
 		{
-			destroy();
+			this->destroy();
 		}
 		template <typename ...Args>
 		void set_attrib(Args... args)
 		{
 			bindVAO();
-			bind();
+			this->bind();
 			set_attrib_priv(args...);
 		}
 		void attachVertexArray(VertexArray::sptr vao)
@@ -332,7 +401,7 @@ namespace gl
 		
 		void draw(GLenum mode) const
 		{
-			draw(mode, 0, m_size);
+			draw(mode, 0, this->m_size);
 		}
 		void draw(GLenum mode, GLint first, GLsizei count) const
 		{
@@ -341,19 +410,19 @@ namespace gl
 				unmap();*/
 
 			bindVAO();
-			bind();
+			this->bind();
 			glDrawArrays(mode, first, count);
 		}
 		template <typename Integer>
 		void draw(const ElementBuffer<Integer>& ebo, GLenum mode) const
 		{
-			draw(ebo, mode, 0, m_size);
+			draw(ebo, mode, 0, this->m_size);
 		}
 		template <typename Integer>
 		void draw(const ElementBuffer<Integer>& ebo, GLenum mode, GLint first, GLsizei count) const
 		{
 			bindVAO();
-			bind();
+			this->bind();
 			ebo.bind();
 			int type = 0;
 			switch (sizeof(Integer))
@@ -391,6 +460,59 @@ namespace gl
 		VertexArray::sptr m_VAO;
 		
 	};
+	//http://www.geeks3d.com/3dfr/20140703/uniform-buffers-objects-opengl-31-tutorial/
+    template<typename MyStruct>
+    class UniformBuffer : public Buffer<GL_UNIFORM_BUFFER, MyStruct>
+    {
+    public:
+        using BufferBase = Buffer<GL_UNIFORM_BUFFER, MyStruct>;
+        UniformBuffer() : BufferBase()
+		{
+			
+		}
+        ~UniformBuffer()
+		{
+			this->destroy();
+		}
+        void setName(std::string block_name)
+        {
+            m_blockName.swap(block_name);
+        }
+        
+        void bindBase(GLuint bind_point)
+        {
+            m_bindPoint = bind_point;
+            BufferBase::bind();
+            glBindBufferBase(GL_UNIFORM_BUFFER, m_bindPoint, id());
+        }
+        template <typename ...Args>
+        void bind(Args... programs)
+        {
+            (bind(programs), ...);
+        }
+        void bind(gl::sl::Program& program)
+        {
+            BufferBase::bind();
+            int blockIndx= getBlockIndex(program, m_blockName);
+            
+            if (blockIndx!=GL_INVALID_INDEX)
+            {
+                glUniformBlockBinding(program.id(), blockIndx, m_bindPoint);
+            }
+        }
+    protected:
+        GLuint getBlockIndex(gl::sl::Program& program, std::string block_name)
+        {
+            return glGetUniformBlockIndex(program.id(), block_name.c_str());
+        }
+        GLuint getBlockIndex(gl::sl::Program& program, const char* block_name)
+        {
+            return glGetUniformBlockIndex(program.id(), block_name);
+        }
+    private:
+        GLuint m_bindPoint=0;
+        std::string m_blockName;
+    };
 	
 	template <class Type>
 	class Uniform
@@ -412,7 +534,7 @@ namespace gl
 	class UniformRef : public Uniform<Type>
 	{
 	public:
-		UniformRef(std::string name, const Type& instance) : Uniform(name), m_instance(&instance)
+		UniformRef(std::string name, const Type& instance) : Uniform<Type>(name), m_instance(&instance)
 		{
 
 		}
@@ -429,11 +551,11 @@ namespace gl
 	class UniformStatic: public Uniform<Type>
 	{
 	public:
-		UniformStatic(std::string name, const Type& instance) : Uniform(name), m_instance(instance)
+		UniformStatic(std::string name, const Type& instance) : Uniform<Type>(name), m_instance(instance)
 		{
 
 		}
-		UniformStatic(std::string name, Type&& instance) : Uniform(name), m_instance(instance)
+		UniformStatic(std::string name, Type&& instance) : Uniform<Type>(name), m_instance(instance)
 		{
 
 		}
@@ -483,6 +605,7 @@ namespace gl
 			MirroredClampToEdge = GL_MIRROR_CLAMP_TO_EDGE,
 		};
 		Sampler();
+		virtual void instantiate();
 		~Sampler();
 
 		void bind() const;
@@ -508,7 +631,7 @@ namespace gl
 		void setMaxLOD(float max_lod);
 		void setLODBias(float lod_bias);
 	protected:
-		virtual void instanciate();
+		
 		virtual void destroy();
 	};
 
@@ -520,6 +643,7 @@ namespace gl
 		Texture();
 		Texture(GLenum target, int w, int h);
 		Texture(GLenum target, GLuint id);
+		virtual void instantiate();
 		~Texture();
 
 		void bind() const;
@@ -541,10 +665,11 @@ namespace gl
 		void setSampler(Sampler::sptr);
 		Sampler::sptr getSampler() const;
 
+		void init_null(GLenum format=GL_RGBA, GLenum type=GL_UNSIGNED_BYTE);
 		void load(GLenum format, GLenum type, const GLvoid * data, glm::vec2 newsize = glm::vec2(-1));
 		void generateMipmap();
 	protected:
-		virtual void instanciate();
+		
 		virtual void destroy();
 	private:
 		glm::ivec2 m_size;
@@ -558,32 +683,26 @@ namespace gl
 	public:
 		DECL_PTR(RenderBuffer)
 		RenderBuffer();
+		virtual void instantiate();
 		template <int multisample>
 		void storage(GLenum internalformat, glm::ivec2 newsize = glm::ivec2(-1))
 		{
-			instanciate();
+			instantiate();
 			if (newsize.x != -1 && newsize.y != -1)
 				setSize(newsize);
 			bind();
 			glRenderbufferStorageMultisample(GL_RENDERBUFFER, multisample, internalformat, m_size.x, m_size.y);
 		}
-		template <>
-		void storage<1>(GLenum internalformat, glm::ivec2 newsize)
-		{
-			instanciate();
-			if (newsize.x != -1 && newsize.y != -1)
-				setSize(newsize);
-			bind();
-			glRenderbufferStorage(GL_RENDERBUFFER, internalformat, m_size.x, m_size.y);
-		}
 		void setSize(glm::ivec2 size);
 		glm::ivec2 getSize();
 		void bind() const;
+		
 	protected:
-		virtual void instanciate();
 		virtual void destroy();
 		glm::ivec2 m_size;
 	};
+	template <>
+	void RenderBuffer::storage<1>(GLenum internalformat, glm::ivec2 newsize);
 	class Framebuffer : public Object
 	{
 	public:
@@ -612,9 +731,11 @@ namespace gl
 			AttachColor6 = GL_COLOR_ATTACHMENT6,
 			// And so on...
 			AttachDepth = GL_DEPTH_ATTACHMENT,
-			AttachStencil = GL_STENCIL_ATTACHMENT
+			AttachStencil = GL_STENCIL_ATTACHMENT,
+			AttachDepthStencil = GL_DEPTH_STENCIL_ATTACHMENT
 		};
 		Framebuffer();
+		virtual void instantiate();
 		~Framebuffer();
 
 		static void BindScreen();
@@ -631,9 +752,8 @@ namespace gl
 		GLenum getStatus();
 
 		void clear(GLuint flags = ClearColor);
-
+		
 	protected:
-		virtual void instanciate();
 		virtual void destroy();
 
 		glm::ivec2 m_size;

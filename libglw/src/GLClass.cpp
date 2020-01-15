@@ -1,6 +1,8 @@
-#include "GLClass.h"
+#include <libglw/GLClass.h>
+#include <libglw/GLImpl_Helper>
 namespace gl
 {
+	bool Object::m_auto_inst=false;
 	Object::Object()
 	{
 		m_id = 0;
@@ -13,10 +15,7 @@ namespace gl
 	{
 
 	}
-	inline GLuint Object::id() const
-	{
-		return m_id;
-	}
+	
 	void Object::swap(Object & obj)
 	{
 		using std::swap;
@@ -28,7 +27,8 @@ namespace gl
 	}
 	Sampler::Sampler() : Object()
 	{
-		instanciate();
+		if (Object::GetAutoInstantiate())
+			instantiate();
 	}
 	Sampler::~Sampler()
 	{
@@ -120,7 +120,7 @@ namespace gl
 	{
 		setParameter(GL_TEXTURE_LOD_BIAS, lod_bias);
 	}
-	void Sampler::instanciate()
+	void Sampler::instantiate()
 	{
 		GLuint myID = id();
 		if (!glIsSampler(myID))
@@ -136,7 +136,8 @@ namespace gl
 	}
 	Texture::Texture() : Object(), m_target(GL_TEXTURE_2D)
 	{
-		instanciate();
+		if (Object::GetAutoInstantiate())
+			instantiate();
 	}
 	Texture::Texture(GLenum target, int w, int h) : Object(), m_target(target)
 	{
@@ -209,11 +210,16 @@ namespace gl
 	{
 		return m_sampler;
 	}
-	
+	void Texture::init_null(GLenum format, GLenum type)
+	{
+		bind();
+		glTexImage2D(m_target, 0, m_format, m_size.x, m_size.y, 0, format, type, nullptr);
+	}
 	void Texture::load(GLenum format, GLenum type, const GLvoid * data, glm::vec2 newsize)
 	{
 		if (!glIsTexture(id()))
-			instanciate();
+			if (Object::GetAutoInstantiate())
+				instantiate();
 		if (newsize.x != -1 && newsize.y != -1)
 			setSize(newsize);
 		bind();
@@ -224,7 +230,7 @@ namespace gl
 		bind();
 		glGenerateMipmap(m_target);
 	}
-	void Texture::instanciate()
+	void Texture::instantiate()
 	{
 		GLuint myid=0;
 		glGenTextures(1, &myid);
@@ -246,7 +252,8 @@ namespace gl
 	
 	Framebuffer::Framebuffer() : Object()
 	{
-		instanciate();
+		if (Object::GetAutoInstantiate())
+			instantiate();
 	}
 
 	Framebuffer::~Framebuffer()
@@ -324,7 +331,7 @@ namespace gl
 		glClear(flags);
 	}
 
-	void Framebuffer::instanciate()
+	void Framebuffer::instantiate()
 	{
 		GLuint myid = id();
 		if (!glIsFramebuffer(myid))
@@ -342,7 +349,8 @@ namespace gl
 
 	RenderBuffer::RenderBuffer() : Object()
 	{
-		instanciate();
+		if (Object::GetAutoInstantiate())
+			instantiate();
 	}
 
 	void RenderBuffer::setSize(glm::ivec2 size)
@@ -360,7 +368,7 @@ namespace gl
 		glBindRenderbuffer(GL_RENDERBUFFER, id());
 	}
 
-	void RenderBuffer::instanciate()
+	void RenderBuffer::instantiate()
 	{
 		GLuint myID = id();
 		if (!glIsRenderbuffer(myID))
@@ -375,10 +383,21 @@ namespace gl
 			glDeleteRenderbuffers(1, &myID);
 		setID(myID);
 	}
+	template <>
+	void RenderBuffer::storage<1>(GLenum internalformat, glm::ivec2 newsize)
+	{
+		if (Object::GetAutoInstantiate())
+			instantiate();
+		if (newsize.x != -1 && newsize.y != -1)
+			setSize(newsize);
+		bind();
+		glRenderbufferStorage(GL_RENDERBUFFER, internalformat, m_size.x, m_size.y);
+	}
 
 	VertexArray::VertexArray() : Object()
 	{
-		instanciate();
+		if (Object::GetAutoInstantiate())
+			instantiate();
 	}
 
 	VertexArray::VertexArray(GLuint id) : Object(id)
@@ -412,7 +431,7 @@ namespace gl
 		glBindVertexArray(id());
 	}
 
-	void VertexArray::instanciate()
+	void VertexArray::instantiate()
 	{
 		GLuint myID = id();
 		if (!glIsVertexArray(myID))

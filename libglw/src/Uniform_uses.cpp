@@ -1,5 +1,5 @@
-#include "GLClass.h"
-#include "Shaders.h"
+#include <libglw/GLClass.h>
+#include <libglw/Shaders.h>
 namespace gl
 {
 	template <>

@@ -1,4 +1,4 @@
-#include "Shaders.h"
+#include <libglw/Shaders.h>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -11,15 +11,15 @@ namespace gl
 	{
 		CompileException::CompileException(TypeShader _type, std::string _name, GLuint _id) : name(_name), type(_type), id(_id)
 		{
-			// Récupération de la taille de l'erreur
+			// RÃ©cupÃ©ration de la taille de l'erreur
 			GLint tailleErreur(0);
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &tailleErreur);
 
-			// Allocation de mémoire pour l'erreur
+			// Allocation de mÃ©moire pour l'erreur
 			char *erreur = new char[tailleErreur + 1];
 			erreur[tailleErreur] = '\0';
 
-			// Récupération de l'erreur
+			// RÃ©cupÃ©ration de l'erreur
 			glGetShaderInfoLog(id, tailleErreur, &tailleErreur, erreur);
 
 			// Detection du type
@@ -107,10 +107,7 @@ namespace gl
 		{
 			return ((*ext)(*this));
 		}
-		const Program& Program::operator<<(const Program& (*ext)(const Program&)) const
-		{
-			return ((*ext)(*this));
-		}
+
 		void Program::link()
 		{
 			glGetError();
@@ -168,7 +165,7 @@ namespace gl
 			Object::swap(prog);
 			swap(prog.isRef, isRef);
 		}
-		void Program::instanciate()
+		void Program::instantiate()
 		{
 			GLuint myid = id();
 			if (!exists())
@@ -187,16 +184,16 @@ namespace gl
 
 		Program::LinkException::LinkException(GLuint _id) : id(_id)
 		{
-			// Récupération de la taille de l'erreur
+			// RÃ©cupÃ©ration de la taille de l'erreur
 			GLint tailleErreur(0);
 			char *erreur(0);
 
 			glGetProgramiv(id, GL_INFO_LOG_LENGTH, &tailleErreur);
 
-			// Allocation de mémoire pour l'erreur
+			// Allocation de mÃ©moire pour l'erreur
 			erreur = new char[tailleErreur + 1];
 
-			// Copie de l'erreur dans la chaine de caractères
+			// Copie de l'erreur dans la chaine de caractÃ¨res
 			glGetProgramInfoLog(id, tailleErreur, &tailleErreur, erreur);
 			erreur[tailleErreur] = '\0';
 
@@ -206,8 +203,8 @@ namespace gl
 			ostr << "\nErreur lors du link du program\nErreur :\n" << erreur << std::endl; 
 			int errorGL = glGetError();
 			if (errorGL>0)
-				ostr << "Erreur OpenGL (" << errorGL << ") : " << gluErrorString(errorGL) << std::endl;
-			// On libère la mémoire puis on retourne false
+				ostr << "Erreur OpenGL (" << errorGL << ")";
+			// On libÃ¨re la mÃ©moire puis on retourne false
 			delete[] erreur;
 			err = ostr.str();
 		}

@@ -6,10 +6,7 @@ set (CMAKE_CXX_STANDARD 11)
 set(CMAKE_DEBUG_POSTFIX "d"
     CACHE STRING "Name suffix for debug builds")
 
-find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
-# find_package(LibGLW REQUIRED)
-find_package(SDL2 REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
 
 file(GLOB ${APP_PROJECT}_SRC
     "*.h"
@@ -18,16 +15,8 @@ file(GLOB ${APP_PROJECT}_SRC
 # Library
 add_executable(${APP_PROJECT} ${${APP_PROJECT}_SRC})
 message("LIBGLW Debug: ${LIBGLW_LIBRARY_DEBUG}; Release: ${LIBGLW_LIBRARY_RELEASE}")
-target_link_libraries (${APP_PROJECT}
-    debug ${LIBGLW_LIBRARY_DEBUG}
-    optimized ${LIBGLW_LIBRARY_RELEASE})
-target_link_libraries(${APP_PROJECT} ${SDL2_LIBRARY} ${SDL2_SDLMAIN_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+target_link_libraries (${APP_PROJECT} glw::libglw SDL2::SDL2 SDL2::SDL2main)
 
-
-target_include_directories(${APP_PROJECT} PUBLIC ${LIBGLW_INCLUDE_DIR})
-target_include_directories(${APP_PROJECT} PUBLIC ${SDL2_INCLUDE_DIR})
-target_include_directories(${APP_PROJECT} PUBLIC ${GLM_INCLUDE_DIRS})
-target_include_directories(${APP_PROJECT} PUBLIC ${GLEW_INCLUDE_DIR})
 target_compile_definitions(${APP_PROJECT} PRIVATE GLM_ENABLE_EXPERIMENTAL=1)
 
 
