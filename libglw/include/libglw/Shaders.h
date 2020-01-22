@@ -17,6 +17,70 @@
 
 namespace gl
 {
+
+
+	template <class Type>
+	class Uniform
+	{
+	public:
+		DECL_PTR(Uniform)
+			Uniform(std::string name) : m_name(name)
+		{}
+		const std::string& name() const
+		{
+			return m_name;
+		}
+		void use(const gl::sl::Program& shader) const;
+		virtual const Type* instance() const = 0;
+	private:
+		std::string m_name;
+	};
+	template <class Type>
+	class UniformRef : public Uniform<Type>
+	{
+	public:
+		UniformRef(std::string name, const Type& instance) : Uniform<Type>(name), m_instance(&instance)
+		{
+
+		}
+		UniformRef(std::string name, Type&& instance) = delete; // Move unable, use UniformStatic<...>
+
+		const Type* instance() const
+		{
+			return m_instance;
+		}
+	private:
+		const Type* m_instance;
+	};
+	template <class Type>
+	class UniformStatic : public Uniform<Type>
+	{
+	public:
+		UniformStatic(std::string name, const Type& instance) : Uniform<Type>(name), m_instance(instance)
+		{
+
+		}
+		UniformStatic(std::string name, Type&& instance) : Uniform<Type>(name), m_instance(instance)
+		{
+
+		}
+		const Type* instance() const
+		{
+			return &m_instance;
+		}
+		void set(Type val)
+		{
+			using std::swap;
+			swap(m_instance, val);
+		}
+		const Type& get() const
+		{
+			return m_instance;
+		}
+	private:
+		Type m_instance;
+	};
+
 	namespace sl
 	{
 		enum TypeShader
@@ -279,6 +343,59 @@ namespace gl
 		}
 
 	}
+	//http://www.geeks3d.com/3dfr/20140703/uniform-buffers-objects-opengl-31-tutorial/
+	template<typename MyStruct>
+	class UniformBuffer : public Buffer<GL_UNIFORM_BUFFER, MyStruct>
+	{
+	public:
+		using BufferBase = Buffer<GL_UNIFORM_BUFFER, MyStruct>;
+		UniformBuffer() : BufferBase()
+		{
+
+		}
+		~UniformBuffer()
+		{
+			this->destroy();
+		}
+		void setName(std::string block_name)
+		{
+			m_blockName.swap(block_name);
+		}
+
+		void bindBase(GLuint bind_point)
+		{
+			m_bindPoint = bind_point;
+			BufferBase::bind();
+			glBindBufferBase(GL_UNIFORM_BUFFER, m_bindPoint, Object::id());
+		}
+		template <typename ...Args>
+		void bind(Args... programs)
+		{
+			(bind(programs), ...);
+		}
+		void bind(gl::sl::Program& program)
+		{
+			BufferBase::bind();
+			int blockIndx = getBlockIndex(program, m_blockName);
+
+			if (blockIndx != GL_INVALID_INDEX)
+			{
+				glUniformBlockBinding(program.id(), blockIndx, m_bindPoint);
+			}
+		}
+	protected:
+		GLuint getBlockIndex(gl::sl::Program& program, std::string block_name)
+		{
+			return glGetUniformBlockIndex(program.id(), block_name.c_str());
+		}
+		GLuint getBlockIndex(gl::sl::Program& program, const char* block_name)
+		{
+			return glGetUniformBlockIndex(program.id(), block_name);
+		}
+	private:
+		GLuint m_bindPoint = 0;
+		std::string m_blockName;
+	};
 }
 #define TRY_GLSL try {
 #define CATCH_GLSL }\
