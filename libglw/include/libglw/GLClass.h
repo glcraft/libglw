@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <memory>
 #include <string>
+#include <stdexcept>
 #include <map>
 //#include "GLC_Object.h"
 #define DECL_UPTR(T) using uptr = std::unique_ptr<T>;
@@ -395,7 +396,7 @@ namespace gl
 		GLuint vertex_array() const
 		{
 			if (m_VAO)
-				return m_VAO().id();
+				return m_VAO->id();
 			return 0;
 		}
 		
