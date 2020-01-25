@@ -30,8 +30,10 @@ target_link_libraries(libglw ${OPENGL_LIBRARIES} GLEW::GLEW glm)
 
 target_include_directories(libglw PUBLIC include/)
 
-set_target_properties(libglw PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-
+set_target_properties(libglw PROPERTIES 
+    DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX}
+    LINKER_LANGUAGE CXX
+)
 include(GNUInstallDirs)
 install( 
   TARGETS libglw
