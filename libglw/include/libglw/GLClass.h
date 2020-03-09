@@ -605,9 +605,10 @@ namespace gl
 		~Sampler();
 
 		void bind() const;
-		void bindTo(GLuint activeTexture);
+		void bind(GLuint activeTexture) const;
 
 		void unbind() const;
+		void unbind(GLuint activeTexture) const;
 
 		void setParameter(GLenum paramName, int value);
 		void setParameter(GLenum paramName, float value);
@@ -643,9 +644,10 @@ namespace gl
 		~Texture();
 
 		void bind() const;
-		void bindTo(GLuint activeTexture);
+		void bind(GLuint activeTexture) const;
 
-		void unbind();
+		void unbind() const;
+		void unbind(GLuint activeTexture) const;
 
 		void set_from(GLuint id);
 

@@ -36,15 +36,23 @@ namespace gl
 	}
 	void Sampler::bind() const
 	{
-		glBindSampler(0, id());
+		int currentActive;
+		glGetIntegerv(GL_ACTIVE_TEXTURE, &currentActive);
+		glBindSampler(currentActive, id());
 	}
-	void Sampler::bindTo(GLuint activeTexture)
+	void Sampler::bind(GLuint activeTexture) const
 	{
 		glBindSampler(activeTexture, id());
 	}
 	void Sampler::unbind() const
 	{
-		glBindSampler(0, 0);
+		int currentActive;
+		glGetIntegerv(GL_ACTIVE_TEXTURE, &currentActive);
+		glBindSampler(currentActive, 0);
+	}
+	void Sampler::unbind(GLuint activeTexture) const
+	{
+		glBindSampler(activeTexture, 0);
 	}
 	void Sampler::setParameter(GLenum paramName, int value)
 	{
@@ -165,13 +173,21 @@ namespace gl
 		m_sampler.bind();
 		glBindTexture(m_target, id());
 	}
-	void Texture::bindTo(GLuint activeTexture)
+	void Texture::bind(GLuint activeTexture) const
+	{
+		m_sampler.bind(activeTexture);
+		glActiveTexture(GL_TEXTURE0+activeTexture);
+		glBindTexture(m_target, id());
+	}
+	void Texture::unbind() const
 	{
 		m_sampler.unbind();
+		glBindTexture(m_target, 0);
 	}
-	void Texture::unbind()
+	void Texture::unbind(GLuint activeTexture) const
 	{
 		m_sampler.unbind(activeTexture);
+		glActiveTexture(GL_TEXTURE0+activeTexture);
 		glBindTexture(m_target, 0);
 	}
 	void Texture::setSize(glm::vec2 size)
@@ -199,12 +215,12 @@ namespace gl
 		return m_target;
 	}
 
-	void Texture::setSampler(Sampler::sptr samp)
+	void Texture::setSampler(Sampler samp)
 	{
 		m_sampler = samp;
 	}
 
-	Sampler::sptr Texture::getSampler() const
+	Sampler Texture::getSampler() const
 	{
 		return m_sampler;
 	}
@@ -237,7 +253,7 @@ namespace gl
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glBindTexture(m_target, 0);
 		setID(myid);
-		m_sampler = std::make_unique<Sampler>();
+		m_sampler = Sampler();
 	}
 
 	void Texture::destroy()
