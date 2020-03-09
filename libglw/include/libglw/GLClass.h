@@ -658,8 +658,8 @@ namespace gl
 		void setTarget(GLenum target);
 		GLenum getTarget() const;
 
-		void setSampler(Sampler::sptr);
-		Sampler::sptr getSampler() const;
+		void setSampler(Sampler);
+		Sampler getSampler() const;
 
 		void init_null(GLenum format=GL_RGBA, GLenum type=GL_UNSIGNED_BYTE);
 		void load(GLenum format, GLenum type, const GLvoid * data, glm::vec2 newsize = glm::vec2(-1));
@@ -671,7 +671,7 @@ namespace gl
 		glm::ivec2 m_size;
 		GLenum m_format;
 		GLenum m_target;
-		Sampler::sptr m_sampler;
+		Sampler m_sampler;
 	};
 	
 	class RenderBuffer : public Object

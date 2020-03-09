@@ -162,18 +162,16 @@ namespace gl
 	}
 	void Texture::bind() const
 	{
-		m_sampler->bind();
-		glActiveTexture(GL_TEXTURE0);
+		m_sampler.bind();
 		glBindTexture(m_target, id());
 	}
 	void Texture::bindTo(GLuint activeTexture)
 	{
-		m_sampler->bindTo(activeTexture);
-		glActiveTexture(GL_TEXTURE0 + activeTexture);
-		bind();
+		m_sampler.unbind();
 	}
 	void Texture::unbind()
 	{
+		m_sampler.unbind(activeTexture);
 		glBindTexture(m_target, 0);
 	}
 	void Texture::setSize(glm::vec2 size)
