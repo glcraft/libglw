@@ -234,11 +234,7 @@ namespace gl
 			template <TypeShader type>
 			void attachShader(Shader<type>&& shader)
 			{
-				if (isRef)
-					throw std::runtime_error("Program reference not accessible for attachment");
-				if (!exists())
-					instantiate();
-				glAttachShader(id(), shader.id());
+				attachShader(shader);
 			}
 			template <TypeShader type>
 			void attachShader(Shader<type>& shader)
