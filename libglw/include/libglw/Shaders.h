@@ -23,7 +23,8 @@ namespace gl
 		{
 			Vertex = GL_VERTEX_SHADER,
 			Fragment = GL_FRAGMENT_SHADER,
-			Geometry = GL_GEOMETRY_SHADER
+			Geometry = GL_GEOMETRY_SHADER,
+			Compute = GL_COMPUTE_SHADER
 		};
 		class CompileException : public std::exception
 		{
@@ -42,7 +43,6 @@ namespace gl
 		class Shader : public Object
 		{
 		public:
-
 			Shader() : Object()
 			{}
 			Shader(const char* filename, bool isFile = true) : Shader()
