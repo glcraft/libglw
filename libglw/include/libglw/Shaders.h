@@ -261,6 +261,7 @@ namespace gl
 			void load(const std::string & name);
 			void bind() const;
 			void swap(Program& prog);
+			bool isReference(){return isRef;}
 		protected:
 			void instantiate();
 			void destroy();
