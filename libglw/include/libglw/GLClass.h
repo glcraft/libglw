@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <type_traits>
+#include <stdexcept>
 #include <memory>
 #include <string>
 #include <map>
@@ -395,7 +396,7 @@ namespace gl
 		GLuint vertex_array() const
 		{
 			if (m_VAO)
-				return m_VAO().id();
+				return m_VAO->id();
 			return 0;
 		}
 		
@@ -483,7 +484,7 @@ namespace gl
         {
             m_bindPoint = bind_point;
             BufferBase::bind();
-            glBindBufferBase(GL_UNIFORM_BUFFER, m_bindPoint, id());
+            glBindBufferBase(GL_UNIFORM_BUFFER, m_bindPoint, this->id());
         }
         template <typename ...Args>
         void bind(Args... programs)
@@ -493,18 +494,18 @@ namespace gl
         void bind(gl::sl::Program& program)
         {
             BufferBase::bind();
-            int blockIndx= getBlockIndex(program, m_blockName);
+            // int blockIndx= getBlockIndex(program, m_blockName);
             
-            if (blockIndx!=GL_INVALID_INDEX)
-            {
-                glUniformBlockBinding(program.id(), blockIndx, m_bindPoint);
-            }
+            // if (blockIndx!=GL_INVALID_INDEX)
+            // {
+            //     glUniformBlockBinding(program.id(), blockIndx, m_bindPoint);
+            // }
         }
     protected:
-        GLuint getBlockIndex(gl::sl::Program& program, std::string_view block_name)
-        {
-            return glGetUniformBlockIndex(program.id(), block_name.data());
-        }
+        // GLuint getBlockIndex(gl::sl::Program& program, std::string_view block_name)
+        // {
+        //     return glGetUniformBlockIndex(program.id(), block_name.data());
+        // }
     private:
         GLuint m_bindPoint=0;
         std::string m_blockName;
