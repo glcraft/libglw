@@ -223,7 +223,7 @@ namespace gl
 		 */
 		void shrink_to_fit()
 		{
-			if (m_capacity != m_size)
+			if (m_capacity == m_size)
 				return;
 			m_capacity = m_size;
 			bind();
