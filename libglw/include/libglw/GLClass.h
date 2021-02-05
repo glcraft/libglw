@@ -259,6 +259,10 @@ namespace gl
 		{
 			glBindBuffer(target, id());
 		}
+		void unbind() const
+		{
+			glBindBuffer(target, 0);
+		}
 		/**
 		 * @brief Get mapped data
 		 * 
