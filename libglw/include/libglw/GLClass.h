@@ -197,7 +197,7 @@ namespace gl
 			}
 		}
 		/**
-		 * @brief Create data
+		 * @brief Create and reserve data
 		 * 
 		 * Note : works like std::vector with a size AND a capacity.
 		 * 
@@ -213,6 +213,22 @@ namespace gl
 				bind();
 				glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, usage);
 			}
+		}
+		/**
+		 * @brief Create and reserve data to exact size
+		 * 
+		 * Unlike reserve, it will force the capatity to the size, like reserve then shrink_to_fit.
+		 * 
+		 * Note : works like std::vector with a size AND a capacity.
+		 * 
+		 * @see [glBufferData](https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBufferData.xhtml)
+		 */
+		void force_reserve(GLsizeiptr size, GLenum usage = GL_STREAM_DRAW)
+		{
+			m_size = size;
+			m_capacity = size;
+			bind();
+			glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, usage);
 		}
 		/**
 		 * @brief Shrink the data to correspond to size instead of capacity
