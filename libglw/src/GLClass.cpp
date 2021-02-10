@@ -190,11 +190,11 @@ namespace gl
 		glActiveTexture(GL_TEXTURE0+activeTexture);
 		glBindTexture(m_target, 0);
 	}
-	void Texture::setSize(glm::vec2 size)
+	void Texture::setSize(glm::ivec2 size)
 	{
 		m_size = size;
 	}
-	glm::vec2 Texture::getSize() const
+	glm::ivec2 Texture::getSize() const
 	{
 		return m_size;
 	}

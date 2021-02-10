@@ -672,8 +672,8 @@ namespace gl
 
 		void set_from(GLuint id);
 
-		void setSize(glm::vec2 size);
-		glm::vec2 getSize() const;
+		void setSize(glm::ivec2 size);
+		glm::ivec2 getSize() const;
 
 		void setFormat(GLenum format);
 		GLenum getFormat() const;
