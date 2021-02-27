@@ -166,6 +166,23 @@ namespace gl
 			GLenum m_target;
 			GLuint m_id;
 		};*/
+		class AttribLocation
+		{
+		public:
+			AttribLocation(const std::string& name, GLint index) : m_name(name), m_index(index)
+			{}
+			const std::string& getName() const
+			{
+				return m_name;
+			}
+			GLint getIndex() const
+			{
+				return m_index;
+			}
+		private:
+			std::string m_name;
+			GLint m_index;
+		};
 		class Program : public Object
 		{
 		public:
@@ -217,6 +234,7 @@ namespace gl
 				attachShader(shad);
 				return *this;
 			}
+			Program& operator<< (const AttribLocation& attr);
 			Program& operator<< (Collection& col);
 			Program& operator<< (Program& (*ext)(Program&));
 			template <TypeShader type, typename ...Args>
@@ -251,6 +269,8 @@ namespace gl
 
 			GLint getAttribLocation(const std::string& name) const;
 			GLint getAttribLocation(const char* name) const;
+			void setAttribLocation(const std::string& name, GLint index) const;
+			void setAttribLocation(const char* name, GLint index) const;
 
 			GLboolean exists() const;
 			void use() const;

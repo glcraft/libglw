@@ -88,6 +88,11 @@ namespace gl
 			swap(prog);
 			return *this;
 		}
+		Program& Program::operator<< (const AttribLocation& attr)
+		{
+			setAttribLocation(attr.getName(), attr.getIndex());
+			return *this;
+		}
 		Program & Program::operator<<(Collection & col)
 		{
 			auto& lsTypes = col.getTypes();
@@ -126,6 +131,14 @@ namespace gl
 		GLint Program::getAttribLocation(const char * name) const
 		{
 			return glGetAttribLocation(id(), name);
+		}
+		void Program::setAttribLocation(const std::string& name, GLint index) const
+		{
+			setAttribLocation(name.c_str(), index);
+		}
+		void Program::setAttribLocation(const char* name, GLint index) const
+		{
+			glBindAttribLocation(id(), index, name);
 		}
 
 		GLboolean Program::exists() const
