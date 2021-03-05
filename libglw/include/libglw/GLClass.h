@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <map>
+#include <vector>
 //#include "GLC_Object.h"
 #define DECL_UPTR(T) using uptr = std::unique_ptr<T>;
 #define DECL_SPTR(T) using sptr = std::shared_ptr<T>;
@@ -175,6 +176,42 @@ namespace gl
 		{
 			if (Object::GetAutoInstantiate())
 				instantiate();
+		}
+		/**
+		 * @brief Set buffer data
+		 * 
+		 * @param data 
+		 * @param usage Usage of the buffer
+		 */
+		void set(const std::vector<MyStruct>& data, GLenum usage = GL_STREAM_DRAW)
+		{
+			set(data.data(), static_cast<uint32_t>(data.size()), usage);
+		}
+		/**
+		 * @brief Set buffer data
+		 * 
+		 * @param data 
+		 * @param usage Usage of the buffer
+		 */
+		void set(const MyStruct* data, uint32_t size, GLenum usage = GL_STREAM_DRAW)
+		{
+			bind();
+			m_size = m_capacity = size;
+			glBufferData(target, size * sizeof(MyStruct), data, usage);
+		}
+		/**
+		 * @brief Set a part of buffer data using glBufferSubData
+		 * 
+		 * @param data 
+		 * @param usage Usage of the buffer
+		 */
+		void subset(GLintptr offset, const std::vector<MyStruct>& data)
+		{
+			if (offset+data.size()>=m_capacity)
+				throw std::runtime_error("gl::Buffer::subset OOB");
+			// if (offset+data.size()>m_size)
+			// 	m_size = offset+data.size();
+			glBufferSubData(target, offset, data.size() * sizeof(MyStruct), data.data());
 		}
 		/**
 		 * @brief Append or reduce data.
