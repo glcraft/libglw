@@ -382,16 +382,16 @@ namespace gl
 		template <int _index>
 		struct Attrib
 		{
-			Attrib(GLsizei _offset = 0, GLint _size = 3, GLenum _type = GL_FLOAT, GLboolean _normalized = GL_FALSE) : offset(_offset), size(_size), type(_type), normalized(_normalized)
+			Attrib(size_t _offset = 0, GLint _size = 3, GLenum _type = GL_FLOAT, GLboolean _normalized = GL_FALSE) : offset(_offset), size(_size), type(_type), normalized(_normalized)
 			{
 				
 			}
-			GLsizei offset;
+			size_t offset;
 			GLint size = 3;
 			GLenum type = GL_FLOAT;
 			GLboolean normalized = GL_FALSE;
-			enum { stride = sizeof(MyStruct) };
-			enum { index = _index };
+			constexpr static int stride = sizeof(MyStruct);
+			constexpr static int index = _index;
 		};
 		ArrayBuffer() : Buffer<GL_ARRAY_BUFFER, MyStruct>()
 		{
@@ -437,7 +437,7 @@ namespace gl
 		template <typename Integer>
 		void draw(const ElementBuffer<Integer>& ebo, GLenum mode) const
 		{
-			draw(ebo, mode, 0, this->m_size);
+			draw(ebo, mode, 0, ebo.size());
 		}
 		template <typename Integer>
 		void draw(const ElementBuffer<Integer>& ebo, GLenum mode, GLint first, GLsizei count) const
@@ -446,17 +446,15 @@ namespace gl
 			this->bind();
 			ebo.bind();
 			int type = 0;
-			switch (sizeof(Integer))
-			{
-			case 1:
-				type = GL_UNSIGNED_BYTE; break;
-			case 2:
-				type = GL_UNSIGNED_SHORT; break;
-			case 4:
-				type = GL_UNSIGNED_INT; break;
-			default:
-				throw std::runtime_error("Wrong integral type for ElementBuffer. Must be less than 4 bytes");
-			}
+			if constexpr (sizeof(Integer) == 1)
+				type = GL_UNSIGNED_BYTE; 
+			else if constexpr (sizeof(Integer) == 2)
+				type = GL_UNSIGNED_SHORT; 
+			else if constexpr (sizeof(Integer) == 4)
+				type = GL_UNSIGNED_INT; 
+			else
+				static_assert(false, "ElementBuffer integral issue. Maximum size of integral permitted: 32 bit");
+				
 			glDrawElements(mode, count, type, reinterpret_cast<const GLvoid*>(first*sizeof(Integer)));
 		}
 	private:
@@ -466,11 +464,10 @@ namespace gl
 				m_VAO->bind();
 				//glBindVertexArray(m_VAO);
 		}
-		template <int id, typename ...Args>
-		void set_attrib_priv(Attrib<id> attrib, Args... args)
+		template <typename ...Args>
+		void set_attrib_priv(Args... attribs)
 		{
-			set_attrib_priv(attrib);
-			set_attrib_priv(args...);
+			(set_attrib_priv(attribs), ...);
 		}
 		template <int id>
 		void set_attrib_priv(Attrib<id> attrib)
