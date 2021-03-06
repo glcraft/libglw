@@ -36,6 +36,8 @@ namespace gl
 			case GL_GEOMETRY_SHADER:
 				txttype = "Geometry Shader";
 				break;
+			default:
+				break;
 				/*case GL_TESS_CONTROL_SHADER:
 				txttype = "Tesselation Control Shader";
 				break;
@@ -103,6 +105,7 @@ namespace gl
 				case gl::sl::Vertex: attachShader(gl::sl::Shader<gl::sl::Vertex>(col.getFilePath() + ".vert")); break;
 				case gl::sl::Fragment: attachShader(gl::sl::Shader<gl::sl::Fragment>(col.getFilePath() + ".frag")); break;
 				case gl::sl::Geometry: attachShader(gl::sl::Shader<gl::sl::Geometry>(col.getFilePath() + ".geom")); break;
+				default: break;
 				}
 
 			}

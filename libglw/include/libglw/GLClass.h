@@ -490,7 +490,7 @@ namespace gl
 			else if constexpr (sizeof(Integer) == 4)
 				type = GL_UNSIGNED_INT; 
 			else
-				static_assert(false, "ElementBuffer integral issue. Maximum size of integral permitted: 32 bit");
+				static_assert((sizeof(Integer) <= 4), "ElementBuffer integral issue. Maximum size of integral permitted: 32 bit");
 				
 			glDrawElements(mode, count, type, reinterpret_cast<const GLvoid*>(first*sizeof(Integer)));
 		}
