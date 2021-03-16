@@ -301,9 +301,7 @@ namespace gl
 	void Framebuffer::blitToScreen(glm::ivec4 src, glm::ivec4 dst, GLbitfield mask, Sampler::Filter filter)
 	{
 		bindTo(TargetRead);
-		//glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glBindFramebuffer(TargetDraw, 0);
-		glDrawBuffer(GL_FRONT);
 		glBlitFramebuffer(src.x, src.y, src.z, src.w, dst.x, dst.y, dst.z, dst.w, mask, filter);
 	}
 
