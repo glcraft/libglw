@@ -36,6 +36,10 @@ namespace gl
 		DECL_PTR(Object)
 		Object();
 		Object(GLuint id);
+		Object(Object&&);
+		Object(const Object&) = delete;
+		Object& operator=(const Object&) = delete;
+		Object& operator=(Object&&) = default;
 		virtual ~Object();
 		/**
 		 * @brief OpenGL ID returns
@@ -176,6 +180,13 @@ namespace gl
 		{
 			if (Object::GetAutoInstantiate())
 				instantiate();
+		}
+		Buffer(const Buffer&) = delete;
+		Buffer(Buffer&& other) : Object(std::move(other)), m_size(other.m_size), m_capacity(other.m_capacity), m_map(other.m_map)
+		{
+			other.m_capacity = 0;
+			other.m_size = 0;
+			other.m_map = 0;
 		}
 		/**
 		 * @brief Set buffer data
@@ -431,8 +442,11 @@ namespace gl
 			constexpr static int index = _index;
 		};
 		ArrayBuffer() : Buffer<GL_ARRAY_BUFFER, MyStruct>()
+		{}
+		ArrayBuffer(const ArrayBuffer&) = delete;
+		ArrayBuffer(ArrayBuffer&& other) : Buffer<GL_ARRAY_BUFFER, MyStruct>(std::move(other))
 		{
-			
+			m_VAO = std::move(other.m_VAO);
 		}
 		~ArrayBuffer()
 		{
@@ -715,8 +729,8 @@ namespace gl
 		void setTarget(GLenum target);
 		GLenum getTarget() const;
 
-		void setSampler(Sampler);
-		Sampler getSampler() const;
+		const Sampler& getSampler() const;
+		Sampler& getSampler();
 
 		void init_null(GLenum format=GL_RGBA, GLenum type=GL_UNSIGNED_BYTE);
 		void load(GLenum format, GLenum type, const GLvoid * data, glm::vec2 newsize = glm::vec2(-1));

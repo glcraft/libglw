@@ -11,6 +11,11 @@ namespace gl
 	{
 		m_id = id;
 	}
+	Object::Object(Object&& other)
+	{
+		m_id = other.m_id;
+		other.m_id = 0;
+	}
 	Object::~Object()
 	{
 
@@ -215,12 +220,11 @@ namespace gl
 		return m_target;
 	}
 
-	void Texture::setSampler(Sampler samp)
+	const Sampler& Texture::getSampler() const
 	{
-		m_sampler = samp;
+		return m_sampler;
 	}
-
-	Sampler Texture::getSampler() const
+	Sampler& Texture::getSampler()
 	{
 		return m_sampler;
 	}
@@ -253,7 +257,7 @@ namespace gl
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glBindTexture(m_target, 0);
 		setID(myid);
-		m_sampler = Sampler();
+		m_sampler.instantiate();
 	}
 
 	void Texture::destroy()
