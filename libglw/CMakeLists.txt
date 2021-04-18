@@ -38,7 +38,7 @@ set_target_properties(libglw PROPERTIES
     OUTPUT_NAME "libglw")
 if (LIBGLW_WITH_STD_FILESYSTEM)
     set_target_properties(libglw PROPERTIES 
-        CXX_STANDARD 17
+        CXX_STANDARD 20
     )
 endif()
 if (MSVC)    
