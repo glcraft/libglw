@@ -294,14 +294,14 @@ namespace gl
 			glBufferData(target, m_capacity * sizeof(MyStruct), nullptr, GL_STREAM_DRAW);
 		}
 		/// Return the size to use
-		GLuint size() const
+		GLsizeiptr size() const
 		{
 			return m_size;
 		}
 		/// Return the capacity of the buffer
-		GLuint capacity() const
+		GLsizeiptr capacity() const
 		{
-			return m_size;
+			return m_capacity;
 		}
 		void bind() const
 		{
@@ -488,7 +488,7 @@ namespace gl
 		template <typename Integer>
 		void draw(const ElementBuffer<Integer>& ebo, GLenum mode) const
 		{
-			draw(ebo, mode, 0, ebo.size());
+			draw(ebo, mode, 0, static_cast<GLsizei>(ebo.size()));
 		}
 		template <typename Integer>
 		void draw(const ElementBuffer<Integer>& ebo, GLenum mode, GLint first, GLsizei count) const
