@@ -255,6 +255,18 @@ namespace gl
 			GLboolean exists() const;
 			void use() const
 			{ glUseProgram(id()); }
+			void dispatch(GLuint num_groups_x) const
+			{ glDispatchCompute(num_groups_x, 1, 1); }
+			void dispatch(GLuint num_groups_x, GLuint num_groups_y) const
+			{ glDispatchCompute(num_groups_x, num_groups_y, 1); }
+			void dispatch(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z) const
+			{ glDispatchCompute(num_groups_x, num_groups_y, num_groups_z); }
+			void dispatch(glm::uvec1 num_groups) const
+			{ dispatch(num_groups.x); }
+			void dispatch(glm::uvec2 num_groups) const
+			{ dispatch(num_groups.x, num_groups.y); }
+			void dispatch(glm::uvec3 num_groups) const
+			{ dispatch(num_groups.x, num_groups.y, num_groups.z); }
 			void load(const std::string & name);
 			void bind() const override
 			{ use(); }
