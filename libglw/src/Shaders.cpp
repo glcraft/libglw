@@ -142,10 +142,6 @@ namespace gl
 		{
 			return glGetUniformLocation(id(), name);
 		}
-		void Program::use()  const
-		{
-			glUseProgram(id());
-		}
 		void Program::load(const std::string& name)
 		{
 			TRY_GLSL
@@ -154,10 +150,6 @@ namespace gl
 			attachShader(gl::sl::Shader<gl::sl::Fragment>(name + ".frag"));
 			link();
 			CATCH_GLSL
-		}
-		void Program::bind() const
-		{
-			use();
 		}
 		void Program::swap(Program & prog)
 		{

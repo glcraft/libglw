@@ -253,9 +253,11 @@ namespace gl
 			GLint getAttribLocation(const char* name) const;
 
 			GLboolean exists() const;
-			void use() const;
+			void use() const
+			{ glUseProgram(id()); }
 			void load(const std::string & name);
-			void bind() const;
+			void bind() const override
+			{ use(); }
 			void swap(Program& prog);
 			bool isReference(){return isRef;}
 		protected:
