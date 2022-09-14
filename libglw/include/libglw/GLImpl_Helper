@@ -11,8 +11,6 @@ namespace _std
 namespace _std
 {
     template <typename T>
-    inline std::unique_ptr<T> make_unique(Args&&... args) {
-        return std::make_unique(std::forward<Args>(args)...);
-    }
+    using make_unique=std::make_unique<T>;
 }
 #endif

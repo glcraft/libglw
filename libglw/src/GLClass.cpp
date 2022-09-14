@@ -239,7 +239,7 @@ namespace gl
 		glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glBindTexture(m_target, 0);
 		setID(myid);
-		m_sampler = std::make_unique<Sampler>();
+		m_sampler = _std::make_unique<Sampler>();
 	}
 
 	void Texture::destroy()
