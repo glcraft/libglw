@@ -1,0 +1,7 @@
+target("libglw")
+    set_kind("static")
+    add_files("libglw/src/*.cpp")
+    add_headerfiles("libglw/include/libglw/*", {prefixdir = "libglw"})
+    add_includedirs("libglw/include", {public = true})
+    add_packages("glew", "glm", {public = true})
+    set_languages("c++11")
