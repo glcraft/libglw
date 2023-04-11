@@ -103,12 +103,16 @@ namespace gl
 			}
 			return *this;
 		}
+		const Program & Program::operator<<(const Program &(*ext)(const Program &)) const 
+		{
+			return ((*ext)(*this));
+		}
 		Program & Program::operator<<(Program &(*ext)(Program &))
 		{
 			return ((*ext)(*this));
 		}
 
-		void Program::link()
+		void Program::link() const 
 		{
 			glGetError();
 			glLinkProgram(id());

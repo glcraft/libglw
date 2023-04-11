@@ -258,13 +258,13 @@ namespace gl
 
 			friend void swap(Program& p1, Program& p2);
 			template <typename Type>
-			Program& operator<<(gl::Uniform<Type>&& uni)
+			const Program& operator<<(gl::Uniform<Type>&& uni) const
 			{
 				uni.use(*this);
 				return *this;
 			}
 			template <typename Type>
-			Program& operator<<(gl::Uniform<Type>& uni)
+			const Program& operator<<(gl::Uniform<Type>& uni) const
 			{
 				uni.use(*this);
 				return *this;
@@ -283,6 +283,7 @@ namespace gl
 			}
 			Program& operator<< (Collection& col);
 			Program& operator<< (Program& (*ext)(Program&));
+			const Program& operator<<(const Program &(*ext)(const Program &)) const;
 			template <TypeShader type, typename ...Args>
 			void attachShader(Shader<type>&& shad, Args... shaders)
 			{
@@ -313,7 +314,7 @@ namespace gl
 					instantiate();
 				glAttachShader(id(), shader.id());
 			}
-			void link();
+			void link() const;
 			GLint getUniformLocation(const std::string& name) const;
 			GLint getUniformLocation(const char* name) const;
 
@@ -331,12 +332,12 @@ namespace gl
 		private:
 			bool isRef=false;
 		};
-		inline gl::sl::Program& link(gl::sl::Program& prog)
+		inline const gl::sl::Program& link(const gl::sl::Program& prog)
 		{
 			prog.link();
 			return prog;
 		}
-		inline gl::sl::Program& use(gl::sl::Program& prog)
+		inline const gl::sl::Program& use(const gl::sl::Program& prog)
 		{
 			prog.use();
 			return prog;
